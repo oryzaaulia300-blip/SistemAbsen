@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem Informasi Akademik</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #4361ee;
+            --secondary-color: #3a0ca3;
+            --sidebar-bg: #1e293b;
+            --bg-color: #f4f6f9;
+            --text-main: #334155;
+            --text-muted: #64748b;
+            --card-bg: #ffffff;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        body { display: flex; height: 100vh; background-color: var(--bg-color); color: var(--text-main); overflow: hidden; }
+
+        /* Sidebar */
+        .sidebar { width: 260px; background-color: var(--sidebar-bg); color: white; display: flex; flex-direction: column; box-shadow: 4px 0 10px rgba(0,0,0,0.05); }
+        .sidebar-header { padding: 25px 20px; font-size: 1.4rem; font-weight: 700; text-align: center; border-bottom: 1px solid rgba(255, 255, 255, 0.1); letter-spacing: 1px; }
+        .sidebar-header span { color: #4cc9f0; }
+
+        .nav-menu { list-style: none; padding: 20px 15px; display: flex; flex-direction: column; gap: 5px; }
+        .nav-menu li a { display: flex; align-items: center; gap: 15px; padding: 12px 15px; color: #cbd5e1; text-decoration: none; border-radius: 8px; font-weight: 500; transition: all 0.3s ease; cursor: pointer; }
+        .nav-menu li a:hover, .nav-menu li a.active { background-color: var(--primary-color); color: white; }
+
+        /* Main Content */
+        .main-wrapper { flex: 1; display: flex; flex-direction: column; overflow-y: auto; }
+        .topbar { background-color: var(--card-bg); padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.03); }
+        .topbar h2 { font-size: 1.2rem; font-weight: 600; }
+        .user-profile { display: flex; align-items: center; gap: 10px; font-weight: 500; }
+        .avatar { width: 35px; height: 35px; background-color: var(--primary-color); color: white; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-weight: bold; }
+
+        .content { padding: 30px; }
+        .page-section { display: none; }
+        .page-section.active-section { display: block; }
+
+        /* Widgets & Panels */
+        .widgets { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; margin-bottom: 30px; }
+        .widget-card { background-color: var(--card-bg); padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; border-left: 5px solid var(--primary-color); }
+        .widget-title { font-size: 0.9rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; margin-bottom: 5px; }
+        .widget-value { font-size: 1.8rem; font-weight: 700; color: var(--secondary-color); }
+
+        .data-panel { background-color: var(--card-bg); border-radius: 12px; padding: 25px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; margin-bottom: 20px; }
+        .panel-header { margin-bottom: 20px; padding-bottom: 15px; border-bottom: 2px solid var(--bg-color); }
+        .panel-header h3 { font-size: 1.2rem; font-weight: 600; }
+
+        /* List Siswa */
+        .student-list { list-style: none; display: flex; flex-direction: column; gap: 12px; }
+        .student-item { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; background-color: var(--bg-color); border-radius: 8px; cursor: pointer; border: 2px solid transparent; transition: all 0.2s ease; }
+        .student-item:hover { transform: translateX(5px); background-color: #f1f5f9; border-color: var(--primary-color); }
+        .student-info h4 { font-size: 1.05rem; margin-bottom: 3px; }
+        .student-info p { font-size: 0.85rem; color: var(--text-muted); }
+
+        .badge-kelas { background-color: #dbeafe; color: #1e40af; padding: 5px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 600; }
+        
+        /* Tombol Aksi Absen */
+        .action-buttons { display: flex; gap: 8px; align-items: center; }
+        .btn-hadir { background-color: #10b981; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-weight: 600; transition: background 0.2s; font-size: 0.85rem; }
+        .btn-hadir:hover { background-color: #059669; }
+        
+        .btn-izin { background-color: #f59e0b; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-weight: 600; transition: background 0.2s; font-size: 0.85rem; }
+        .btn-izin:hover { background-color: #d97706; }
+
+        .btn-sakit { background-color: #3b82f6; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-weight: 600; transition: background 0.2s; font-size: 0.85rem; }
+        .btn-sakit:hover { background-color: #2563eb; }
+
+        /* Form Pencarian & Tabel */
+        .search-box { display: flex; gap: 10px; margin-top: 15px; }
+        .search-box input { flex: 1; padding: 10px 15px; border: 1px solid #cbd5e1; border-radius: 6px; outline: none; font-size: 1rem; }
+        .search-box button { background-color: var(--primary-color); color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: 600; }
+
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #e2e8f0; font-size: 0.95rem; }
+        th { background-color: #f8fafc; color: var(--text-muted); }
+        .result-container { margin-top: 20px; display: none; }
+        .student-identity { background: #e0f2fe; padding: 15px; border-radius: 8px; margin-bottom: 15px; color: #0369a1; font-weight: 500; }
+
+        /* Responsif HP */
+        @media (max-width: 768px) {
+            body { flex-direction: column; overflow: auto; }
+            .sidebar { width: 100%; height: auto; flex-direction: row; justify-content: space-between; align-items: center; padding: 10px 15px; }
+            .nav-menu { flex-direction: row; padding: 0; gap: 5px; }
+            .nav-menu li a { padding: 8px 10px; font-size: 0.85rem; }
+            .student-item { flex-direction: column; align-items: flex-start; gap: 10px; }
+            .student-item > div:last-child { width: 100%; justify-content: space-between; flex-wrap: wrap; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Sidebar Navigasi -->
+    <aside class="sidebar">
+        <div class="sidebar-header">Edu<span>Sys</span></div>
+        <ul class="nav-menu">
+            <li><a id="menu-dashboard" onclick="switchPage('dashboard')" class="active">📊 Dashboard</a></li>
+            <li><a id="menu-siswa" onclick="switchPage('siswa')">👨‍🎓 Siswa</a></li>
+            <li><a id="menu-nilai" onclick="switchPage('nilai')">📝 Nilai</a></li>
+            <li><a id="menu-absen" onclick="switchPage('absen')">📅 Absen</a></li>
+        </ul>
+    </aside>
+
+    <div class="main-wrapper">
+        <header class="topbar">
+            <h2 id="page-title">Dashboard Overview</h2>
+            <div class="user-profile">
+                <span>Oryza Aulia</span>
+                <div class="avatar">O</div>
+            </div>
+        </header>
+
+        <main class="content">
+            
+            <!-- HALAMAN 1: DASHBOARD -->
+            <div id="section-dashboard" class="page-section active-section">
+                <div class="widgets">
+                    <div class="widget-card">
+                        <div class="widget-title">Total Siswa</div>
+                        <div class="widget-value" id="count-siswa">0</div>
+                    </div>
+                    <div class="widget-card" style="border-left-color: #10b981;">
+                        <div class="widget-title">Status Sistem</div>
+                        <div class="widget-value" style="font-size: 1.2rem; color: #10b981; margin-top: 10px;">🟢 Connected</div>
+                    </div>
+                </div>
+                <div class="data-panel">
+                    <div class="panel-header"><h3>Selamat Datang di Sistem Informasi Akademik</h3></div>
+                    <p style="color: var(--text-muted);">Gunakan menu di sebelah kiri untuk mengelola absensi (Hadir, Izin, Sakit) dan mengecek rekap nilai secara real-time dari database.</p>
+                </div>
+            </div>
+
+            <!-- HALAMAN 2: SISWA & TOMBOL ABSEN (HADIR, IZIN, SAKIT) -->
+            <div id="section-siswa" class="page-section">
+                <div class="data-panel">
+                    <div class="panel-header"><h3>Daftar Siswa Terdaftar & Menu Absensi</h3></div>
+                    <ul class="student-list" id="daftar-siswa">
+                        <li style="text-align: center; color: var(--text-muted);">Memuat data dari PostgreSQL...</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- HALAMAN 3: CEK NILAI -->
+            <div id="section-nilai" class="page-section">
+                <div class="data-panel">
+                    <div class="panel-header"><h3>Portal Cek Nilai Siswa</h3></div>
+                    <p style="color: var(--text-muted); font-size: 0.9rem;">Masukkan Nomor Induk Siswa (NIS) untuk melihat rekap nilai.</p>
+                    <div class="search-box">
+                        <input type="text" id="inputNisNilai" placeholder="Contoh: 1001">
+                        <button onclick="cekNilai()">Cek Nilai</button>
+                    </div>
+                </div>
+                <div class="data-panel result-container" id="panelHasilNilai">
+                    <div class="student-identity" id="idSiswaNilaiText"></div>
+                    <table>
+                        <thead>
+                            <tr><th>Mata Pelajaran</th><th>Nilai</th></tr>
+                        </thead>
+                        <tbody id="tabelNilai"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- HALAMAN 4: RIWAYAT ABSENSI -->
+            <div id="section-absen" class="page-section">
+                <div class="data-panel">
+                    <div class="panel-header"><h3>Portal Cek Riwayat Kehadiran</h3></div>
+                    <p style="color: var(--text-muted); font-size: 0.9rem;">Masukkan Nomor Induk Siswa (NIS) untuk melihat riwayat kehadiran.</p>
+                    <div class="search-box">
+                        <input type="text" id="inputNisAbsen" placeholder="Contoh: 1001">
+                        <button onclick="cekAbsen()">Cek Absen</button>
+                    </div>
+                </div>
+                <div class="data-panel result-container" id="panelHasilAbsen">
+                    <div class="student-identity" id="idSiswaAbsenText"></div>
+                    <table>
+                        <thead>
+                            <tr><th>Tanggal</th><th>Status Kehadiran</th></tr>
+                        </thead>
+                        <tbody id="tabelAbsen"></tbody>
+                    </table>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <script>
+        // Fungsi Navigasi Halaman
+        function switchPage(pageName) {
+            document.querySelectorAll('.page-section').forEach(sec => sec.classList.remove('active-section'));
+            document.querySelectorAll('.nav-menu a').forEach(menu => menu.classList.remove('active'));
+
+            document.getElementById(`section-${pageName}`).classList.add('active-section');
+            document.getElementById(`menu-${pageName}`).classList.add('active');
+
+            const titles = {
+                dashboard: 'Dashboard Overview',
+                siswa: 'Data Siswa & Menu Absensi',
+                nilai: 'Portal Rekap Nilai',
+                absen: 'Portal Riwayat Absensi'
+            };
+            document.getElementById('page-title').innerText = titles[pageName];
+        }
+
+        // Ambil Data Siswa
+        fetch('/api/siswa')
+            .then(response => response.json())
+            .then(data => {
+                const list = document.getElementById('daftar-siswa');
+                const countSiswa = document.getElementById('count-siswa');
+                list.innerHTML = '';
+                
+                if (data.length === 0) {
+                    list.innerHTML = '<li style="text-align: center; color: var(--text-muted);">Belum ada data siswa.</li>';
+                } else {
+                    countSiswa.innerText = data.length;
+                    data.forEach(siswa => {
+                        list.innerHTML += `
+                            <li class="student-item" onclick="alert('Informasi - Nama: ${siswa.nama} | Kelas: ${siswa.kelas} | NIS: ${siswa.nis}')">
+                                <div class="student-info">
+                                    <h4>${siswa.nama}</h4>
+                                    <p>NIS: ${siswa.nis} (Klik untuk detail)</p>
+                                </div>
+                                <div style="display: flex; gap: 12px; align-items: center;">
+                                    <div class="badge-kelas">Kelas ${siswa.kelas}</div>
+                                    <div class="action-buttons">
+                                        <button class="btn-hadir" onclick="event.stopPropagation(); catatAbsen(${siswa.id}, 'Hadir')">Hadir</button>
+                                        <button class="btn-izin" onclick="event.stopPropagation(); catatAbsen(${siswa.id}, 'Izin')">Izin</button>
+                                        <button class="btn-sakit" onclick="event.stopPropagation(); catatAbsen(${siswa.id}, 'Sakit')">Sakit</button>
+                                    </div>
+                                </div>
+                            </li>
+                        `;
+                    });
+                }
+            })
+            .catch(error => console.error('Error:', error));
+
+        // Fungsi Tombol Catat Absen (Mendukung Hadir, Izin, Sakit)
+        function catatAbsen(idSiswa, statusKehadiran) {
+            fetch('/api/absen', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ siswa_id: idSiswa, status: statusKehadiran })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) alert(`Sukses: Absen "${statusKehadiran}" berhasil disimpan ke pgAdmin!`);
+                else alert('Gagal menyimpan absen.');
+            })
+            .catch(error => console.error('Error:', error));
+        }
+
+        // Cek Nilai Berdasarkan NIS
+        function cekNilai() {
+            const nis = document.getElementById('inputNisNilai').value.trim();
+            if (!nis) { alert('Masukkan NIS terlebih dahulu!'); return; }
+
+            fetch(`/api/siswa/detail/${nis}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (!data.success) { alert('NIS tidak ditemukan di database!'); document.getElementById('panelHasilNilai').style.display = 'none'; return; }
+                    
+                    document.getElementById('panelHasilNilai').style.display = 'block';
+                    document.getElementById('idSiswaNilaiText').innerHTML = `Nama: <strong>${data.siswa.nama}</strong> | Kelas: <strong>${data.siswa.kelas}</strong>`;
+                    
+                    const tbody = document.getElementById('tabelNilai');
+                    tbody.innerHTML = '';
+                    if (data.nilai.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="2" style="text-align: center; color: var(--text-muted);">Belum ada data nilai.</td></tr>';
+                    } else {
+                        data.nilai.forEach(n => {
+                            tbody.innerHTML += `<tr><td>${n.nama_pelajaran}</td><td><strong>${n.nilai}</strong></td></tr>`;
+                        });
+                    }
+                });
+        }
+
+        // Cek Riwayat Absen Berdasarkan NIS
+        function cekAbsen() {
+            const nis = document.getElementById('inputNisAbsen').value.trim();
+            if (!nis) { alert('Masukkan NIS terlebih dahulu!'); return; }
+
+            fetch(`/api/siswa/detail/${nis}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (!data.success) { alert('NIS tidak ditemukan di database!'); document.getElementById('panelHasilAbsen').style.display = 'none'; return; }
+                    
+                    document.getElementById('panelHasilAbsen').style.display = 'block';
+                    document.getElementById('idSiswaAbsenText').innerHTML = `Nama: <strong>${data.siswa.nama}</strong> | Kelas: <strong>${data.siswa.kelas}</strong>`;
+                    
+                    const tbody = document.getElementById('tabelAbsen');
+                    tbody.innerHTML = '';
+                    if (data.kehadiran.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="2" style="text-align: center; color: var(--text-muted);">Belum ada riwayat absen.</td></tr>';
+                    } else {
+                        data.kehadiran.forEach(a => {
+                            const tgl = new Date(a.tanggal).toLocaleDateString('id-ID');
+                            
+                            // Memberi warna badge berdasarkan status
+                            let badgeColor = '#1e40af';
+                            let badgeBg = '#dbeafe';
+                            if (a.status === 'Izin') { badgeColor = '#b45309'; badgeBg = '#fef3c7'; }
+                            else if (a.status === 'Sakit') { badgeColor = '#1d4ed8'; badgeBg = '#dbeafe'; }
+
+                            tbody.innerHTML += `<tr><td>${tgl}</td><td><span style="background: ${badgeBg}; color: ${badgeColor}; padding: 3px 10px; border-radius: 12px; font-size: 0.85rem; font-weight: 600;">${a.status}</span></td></tr>`;
+                        });
+                    }
+                });
+        }
+    </script>
+</body>
+</html>
